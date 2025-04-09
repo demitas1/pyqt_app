@@ -20,6 +20,15 @@ class ImageLabel(QLabel):
         super().setPixmap(pixmap)
 
 
+def get_outer_rect(rect_inner, frame_width):
+        return QRect(
+            rect_inner.left() - frame_width,
+            rect_inner.top() - frame_width,
+            rect_inner.width() + frame_width * 2,
+            rect_inner.height() + frame_width * 2
+        )
+
+
 class SelectionRect(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -29,6 +38,7 @@ class SelectionRect(QWidget):
         self.current_rect = None  # スケール1.0での矩形
         self.scaled_rect = None   # 現在のスケールでの矩形
         self.scale = 1.0
+        self.frame_width = 5 # 選択矩形の太さ
         # 背景を透明に設定
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
@@ -53,12 +63,21 @@ class SelectionRect(QWidget):
     def paintEvent(self, event):
         if self.drawing or self.scaled_rect is not None:
             painter = QPainter(self)
+
             # TODO: 8個のアンカーを持つ矩形選択を描画
-            painter.setPen(QPen(QColor(0, 0, 255), 2))  # 青い線、太さ2
+            painter.setPen(QPen(QColor(0, 0, 255), 1))  # 青い線、太さ1
             if self.drawing:
-                painter.drawRect(self.get_rect())
+                r_inner = self.get_rect()
             else:
-                painter.drawRect(self.scaled_rect)
+                r_inner = self.scaled_rect
+
+            # 外側の矩形を計算
+            r_outer = get_outer_rect(r_inner, self.frame_width)
+
+            # 選択矩形を描画
+            painter.drawRect(r_inner)
+            painter.drawRect(r_outer)
+
 
     def get_rect(self):
         return QRect(self.rect_start, self.rect_end).normalized()
@@ -77,15 +96,33 @@ class SelectionRect(QWidget):
         # TODO: 選択範囲調整アンカーの判定
         # TODO: 選択範囲移動
         if event.button() == Qt.MouseButton.LeftButton:
+
             if self.current_rect is not None:
-                # 既存の矩形を消去
-                self.current_rect = None
-                self.scaled_rect = None
-                self.update()
-            # 新しい矩形の開始
-            self.drawing = True
-            self.rect_start = event.pos()
-            self.rect_end = self.rect_start
+                # 既存の矩形がある場合
+                click_pos = event.pos()
+
+                r_inner = self.scaled_rect
+                r_outer = get_outer_rect(r_inner, self.frame_width)
+
+                # scaled_rectの内側かどうかを判定
+                if r_outer.contains(click_pos):
+                    if r_inner.contains(click_pos):
+                        print("selection: inner clicked")
+                    else:
+                        print("selection: outer clicked")
+                else:
+                    # 既存の矩形を消去
+                    self.current_rect = None
+                    self.scaled_rect = None
+                    self.drawing = True
+                    self.rect_start = click_pos
+                    self.rect_end = self.rect_start
+                    self.update()
+            else:
+                # 新しい矩形の開始
+                self.drawing = True
+                self.rect_start = event.pos()
+                self.rect_end = self.rect_start
 
     def mouseMoveEvent(self, event):
         if self.drawing:
