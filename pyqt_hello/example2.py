@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (QApplication, QWidget, QLabel, QVBoxLayout,
 from PyQt6.QtGui import QPixmap, QPainter, QPen, QColor
 from PyQt6.QtCore import Qt, QRect, QPoint
 
+
 class ImageLabel(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -17,6 +18,7 @@ class ImageLabel(QLabel):
     def setPixmap(self, pixmap):
         self.original_pixmap = pixmap
         super().setPixmap(pixmap)
+
 
 class SelectionRect(QWidget):
     def __init__(self, parent=None):
@@ -40,14 +42,18 @@ class SelectionRect(QWidget):
                 int(self.current_rect.width() * scale),
                 int(self.current_rect.height() * scale)
             )
+
+            # TODO: for Debug
             print(f"scale: {scale}")
             print(f"current_rect: {self.current_rect.x()}, {self.current_rect.y()}, {self.current_rect.width()}, {self.current_rect.height()}")
             print(f"scaled_rect: {self.scaled_rect.x()}, {self.scaled_rect.y()}, {self.scaled_rect.width()}, {self.scaled_rect.height()}")
+
         self.update()  # スケール変更時に再描画
 
     def paintEvent(self, event):
         if self.drawing or self.scaled_rect is not None:
             painter = QPainter(self)
+            # TODO: 8個のアンカーを持つ矩形選択を描画
             painter.setPen(QPen(QColor(0, 0, 255), 2))  # 青い線、太さ2
             if self.drawing:
                 painter.drawRect(self.get_rect())
@@ -68,6 +74,8 @@ class SelectionRect(QWidget):
         )
 
     def mousePressEvent(self, event):
+        # TODO: 選択範囲調整アンカーの判定
+        # TODO: 選択範囲移動
         if event.button() == Qt.MouseButton.LeftButton:
             if self.current_rect is not None:
                 # 既存の矩形を消去
@@ -88,19 +96,10 @@ class SelectionRect(QWidget):
         if event.button() == Qt.MouseButton.LeftButton and self.drawing:
             self.drawing = False
             self.rect_end = event.pos()
-            # 矩形の座標を標準出力に表示（元の画像サイズに対する相対座標）
             rect = self.get_rect()
-            print(f'rect_start: {self.rect_start.x()}, {self.rect_start.y()}')
-            print(f'rect_end: {self.rect_end.x()}, {self.rect_end.y()}')
-
-            print(f'rect: {rect.x()}, {rect.y()}')
-            # ラベルの位置とサイズを表示
-            geometry = self.geometry()
-            print(f"ラベルの位置: x={geometry.x()}, y={geometry.y()}")
 
             # スケール1.0での矩形を保存
             self.current_rect = self.scale_rect_to_original(rect)
-            print(f"矩形の座標（元画像サイズに対する相対座標）: x1={self.current_rect.x()}, y1={self.current_rect.y()}, x2={self.current_rect.x() + self.current_rect.width()}, y2={self.current_rect.y() + self.current_rect.height()}")
 
             # 現在のスケールでの矩形を計算
             self.scaled_rect = QRect(
@@ -110,6 +109,7 @@ class SelectionRect(QWidget):
                 int(self.current_rect.height() * self.scale)
             )
             self.update()
+
 
 class SimpleWindow(QMainWindow):
     def __init__(self):
@@ -210,6 +210,8 @@ class SimpleWindow(QMainWindow):
             label_geometry = self.image_label.geometry()
             # SelectionRectの位置とサイズを更新
             self.selection_rect.setGeometry(label_geometry)
+
+            # TODO: for Debug
             print(f"ImageLabel geometry: {label_geometry.x()}, {label_geometry.y()}, {label_geometry.width()}, {label_geometry.height()}")
             print(f"SelectionRect geometry: {self.selection_rect.geometry().x()}, {self.selection_rect.geometry().y()}, {self.selection_rect.geometry().width()}, {self.selection_rect.geometry().height()}")
 
@@ -242,6 +244,7 @@ class SimpleWindow(QMainWindow):
             "PyQt6 Hello World\n\n"
             "シンプルなPyQt6アプリケーションの例です。"
         )
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
