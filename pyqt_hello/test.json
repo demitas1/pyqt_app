@@ -1,27 +1,61 @@
 [
     {
-        "x": 0,
-        "y": 0,
-        "width": 32,
-        "height": 32
+        "animation_name": "anime_00",
+        "coordinates": [
+            {
+                "x": 0,
+                "y": 0,
+                "width": 32,
+                "height": 32
+            },
+            {
+                "x": 0,
+                "y": 32,
+                "width": 32,
+                "height": 32
+            },
+            {
+                "x": 0,
+                "y": 64,
+                "width": 32,
+                "height": 32
+            },
+            {
+                "x": 0,
+                "y": 96,
+                "width": 32,
+                "height": 32
+            }
+        ]
     },
     {
-        "x": 0,
-        "y": 32,
-        "width": 32,
-        "height": 32
-    },
-    {
-        "x": 0,
-        "y": 64,
-        "width": 32,
-        "height": 32
-    },
-    {
-        "x": 0,
-        "y": 96,
-        "width": 32,
-        "height": 32
+        "animation_name": "anime_01",
+        "coordinates": [
+            {
+                "x": 32,
+                "y": 0,
+                "width": 32,
+                "height": 32
+            },
+            {
+                "x": 32,
+                "y": 32,
+                "width": 32,
+                "height": 32
+            },
+            {
+                "x": 32,
+                "y": 64,
+                "width": 32,
+                "height": 32
+            },
+            {
+                "x": 32,
+                "y": 96,
+                "width": 32,
+                "height": 32
+            }
+        ]
     }
 ]
 

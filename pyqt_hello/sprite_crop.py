@@ -3,7 +3,7 @@ import sys
 import json
 from PIL import Image
 
-def crop_and_join_images(image_path, json_path, output_path="output.png"):
+def crop_and_join_images(original_image, crop_data, output_path="output.png"):
     """
     指定されたJSONファイルの座標情報に基づいて画像を切り取り、
     それらを水平に連結して新しい画像として保存する。
@@ -14,13 +14,6 @@ def crop_and_join_images(image_path, json_path, output_path="output.png"):
     - output_path: 出力画像のファイルパス（デフォルトは'output.png'）
     """
     try:
-        # 画像を開く
-        original_image = Image.open(image_path)
-
-        # JSONファイルを読み込む
-        with open(json_path, 'r') as f:
-            crop_data = json.load(f)
-
         # 切り取った画像を格納するリスト
         cropped_images = []
 
@@ -61,10 +54,39 @@ def crop_and_join_images(image_path, json_path, output_path="output.png"):
             result_image.paste(img, (current_x, 0))
             current_x += img.width
 
+        # もし出力パスが ".png" で終わらない場合、".png" を追加
+        if not output_path.endswith(".png"):
+            output_path = f"{output_path}.png"
+
         # 結果を保存
         result_image.save(output_path)
         print(f"出力画像を保存しました: {output_path}")
         return True
+
+    except Exception as e:
+        print(f"エラー: {e}")
+        return False
+
+
+def crop_animations(image_path, json_path):
+    try:
+        # 画像を開く
+        original_image = Image.open(image_path)
+
+        # JSONファイルを読み込む
+        with open(json_path, 'r') as f:
+            crop_data = json.load(f)
+
+        for anime in crop_data:
+            animation_name = anime.get('animation_name', 'default')
+            crop_coordinates = anime.get('coordinates', [])
+            print(f"アニメーション名: {animation_name}")
+
+            # 画像の切り取りと連結を実行
+            crop_and_join_images(
+                original_image,
+                crop_coordinates,
+                animation_name)
 
     except FileNotFoundError as e:
         print(f"エラー: ファイルが見つかりません: {e}")
@@ -76,22 +98,17 @@ def crop_and_join_images(image_path, json_path, output_path="output.png"):
         print(f"エラー: {e}")
         return False
 
+
 def main():
     # コマンドライン引数の解析
     if len(sys.argv) < 3:
-        print("使用方法: python script.py <画像ファイル> <JSONファイル> [出力ファイル]")
+        print("使用方法: python script.py <画像ファイル> <JSONファイル>")
         return
 
     image_path = sys.argv[1]
     json_path = sys.argv[2]
+    crop_animations(image_path, json_path)
 
-    # 出力ファイル名が指定されている場合は使用する
-    output_path = "output.png"
-    if len(sys.argv) > 3:
-        output_path = sys.argv[3]
-
-    # 画像の切り取りと連結を実行
-    crop_and_join_images(image_path, json_path, output_path)
 
 if __name__ == "__main__":
     main()
